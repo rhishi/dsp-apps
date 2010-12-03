@@ -2,6 +2,37 @@
 
 import math
 
+# http://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Digit-by-digit_calculation
+def sqrt_digit_by_digit(a):
+    assert (a < 1 << 32)    
+    op = a & 0xFFFFFFFF
+    rem = 0
+    root = 0
+    for i in range(16):        
+        twobits = a >> (30 - 2*i) & 3
+        rem = twobits + (rem << 2)
+        root = root << 1;
+        trial = (root << 1) + 1
+        if rem >= trial:
+            rem = rem - trial
+            root = root + 1
+        assert (a >> (30 - 2*i) == root**2 + rem)
+    assert (a == root**2 + rem)
+    return root
+
+print sqrt_digit_by_digit(4)
+print sqrt_digit_by_digit(100)
+print sqrt_digit_by_digit(2000000)
+print sqrt_digit_by_digit(3000000)
+print sqrt_digit_by_digit(20)
+print sqrt_digit_by_digit(31)
+print sqrt_digit_by_digit(15)
+print sqrt_digit_by_digit(63)
+print sqrt_digit_by_digit(0xFFFFFFFF)
+
+
+
+
 def sqrt_nr(a, n, accuracy):
     x = 1.0
     for i in range(n):
@@ -17,19 +48,21 @@ def sqrt_nr(a, n, accuracy):
 # http://medialab.freaknet.org/martin/src/sqrt/
 def sqrt_abacus(a):
     assert (a < 1 << 32)    
-    op = a & 0xFFFFFFFF
-    res = 0
+    rem = a & 0xFFFFFFFF
+    root = 0
     one = 1 << 30
     factor = 1 << 16
     while one != 0:
-        if (op >= res + one):
-            op -= res + one
-            res += 2 * one
-        res /= 2
+        if (rem >= root + one):
+            rem -= root + one
+            root += 2 * one
+        root /= 2
         one /= 4
         factor /= 2
-        print op, res, one, op + (res/factor)**2
-    return res
+        assert (a == rem + (root/factor)**2)
+    assert (factor == 1)
+    assert (a == root**2 + rem)
+    return root
 
 
 for x in [3, 4, 8, 9, 32, 33, 34, 40, 63, 64, 80]:
