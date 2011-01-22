@@ -5,7 +5,7 @@ import math
 # http://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Digit-by-digit_calculation
 def sqrt_digit_by_digit(a):
     assert (a < 1 << 32)    
-    op = a & 0xFFFFFFFF
+    a &= 0xFFFFFFFF
     rem = 0
     root = 0
     for i in range(16):        
@@ -48,7 +48,8 @@ def sqrt_nr(a, n, accuracy):
 # http://medialab.freaknet.org/martin/src/sqrt/
 def sqrt_abacus(a):
     assert (a < 1 << 32)    
-    rem = a & 0xFFFFFFFF
+    a &= 0xFFFFFFFF
+    rem = a
     root = 0
     one = 1 << 30
     factor = 1 << 16
