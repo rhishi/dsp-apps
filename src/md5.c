@@ -53,6 +53,7 @@
 
 #include "md5.h"
 #include <string.h>
+#include <stdio.h>
 
 #undef BYTE_ORDER	/* 1 = big-endian, -1 = little-endian, 0 = unknown */
 #ifdef ARCH_IS_BIG_ENDIAN
@@ -128,9 +129,11 @@
 #define T64 /* 0xeb86d391 */ (T_MASK ^ 0x14792c6e)
 
 
-static void
+void
 md5_process(md5_state_t *pms, const md5_byte_t *data /*[64]*/)
 {
+  int i;
+
     md5_word_t
 	a = pms->abcd[0], b = pms->abcd[1],
 	c = pms->abcd[2], d = pms->abcd[3];
@@ -143,6 +146,13 @@ md5_process(md5_state_t *pms, const md5_byte_t *data /*[64]*/)
     md5_word_t xbuf[16];
     const md5_word_t *X;
 #endif
+
+    printf("md5_process: ");
+    for (i = 0; i < 4; i++)
+      printf("%08x ", pms->abcd[i]);
+    for (i = 0; i < 64; i++)
+      printf("%d, ", (unsigned char) data[i]);
+    printf("\n");
 
     {
 #if BYTE_ORDER == 0
@@ -307,6 +317,11 @@ md5_process(md5_state_t *pms, const md5_byte_t *data /*[64]*/)
     pms->abcd[1] += b;
     pms->abcd[2] += c;
     pms->abcd[3] += d;
+
+    printf("md5_process end: ");
+    for (i = 0; i < 4; i++)
+      printf("%08x ", pms->abcd[i]);
+    printf("\n");
 }
 
 void
@@ -357,6 +372,7 @@ md5_append(md5_state_t *pms, const md5_byte_t *data, int nbytes)
 	memcpy(pms->buf, p, left);
 }
 
+
 void
 md5_finish(md5_state_t *pms, md5_byte_t digest[16])
 {
@@ -369,6 +385,11 @@ md5_finish(md5_state_t *pms, md5_byte_t digest[16])
     md5_byte_t data[8];
     int i;
 
+    printf("md5_finish: ");
+    for (i = 0; i < 4; i++)
+      printf("%08x ", pms->abcd[i]);
+    printf("\n");
+    
     /* Save the length before padding. */
     for (i = 0; i < 8; ++i)
 	data[i] = (md5_byte_t)(pms->count[i >> 2] >> ((i & 3) << 3));
@@ -376,6 +397,16 @@ md5_finish(md5_state_t *pms, md5_byte_t digest[16])
     md5_append(pms, pad, ((55 - (pms->count[0] >> 3)) & 63) + 1);
     /* Append the length. */
     md5_append(pms, data, 8);
+
+    for (i = 0; i < 4; i++)
+      printf("%08x ", pms->abcd[i]);
+    printf("\n");
+
     for (i = 0; i < 16; ++i)
+      {
+        printf("%d %d %08x %d\n", i >> 2, ((i & 3) << 3),
+               pms->abcd[i >> 2],
+               (md5_byte_t) (pms->abcd[i >> 2] >> ((i & 3) << 3)));
 	digest[i] = (md5_byte_t)(pms->abcd[i >> 2] >> ((i & 3) << 3));
+      }
 }

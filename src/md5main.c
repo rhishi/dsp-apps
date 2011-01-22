@@ -58,6 +58,46 @@ Usage:\n\
 ";
 static const char *const version = "2002-04-13";
 
+/* Simple test */
+static int
+simple_test(void)
+{
+  md5_state_t state;
+  md5_byte_t digest[16];
+  char hex_output[16*2 + 1];
+  int i;
+
+  char zerostr[65];
+  for (i = 0; i < 65; i++)
+    zerostr[i] = 0;
+
+  puts(zerostr);
+
+  md5_init(&state);
+  md5_append(&state, (const md5_byte_t *)zerostr, strlen(zerostr));
+  md5_finish(&state, digest);
+
+  printf("digest = [");
+  for (i = 0; i < 16; ++i)
+    printf("%d, ", digest[i]);
+  printf("]\n");
+
+  for (i = 0; i < 16; ++i)
+    sprintf(hex_output + i * 2, "%02x", digest[i]);
+  puts(hex_output);
+
+  md5_init(&state);
+  for (i = 0; i < 4; i++)
+    printf("%08x ", state.abcd[i]);
+  printf("\n");
+  md5_process(&state, (const md5_byte_t *)zerostr);
+  for (i = 0; i < 4; i++)
+    printf("%08x ", state.abcd[i]);
+  printf("\n");
+
+  return 0;
+}
+
 /* Run the self-test. */
 static int
 do_test(void)
@@ -74,6 +114,9 @@ do_test(void)
     };
     int i;
     int status = 0;
+
+    simple_test();
+    return 0;
 
     for (i = 0; i < 7*2; i += 2) {
 	md5_state_t state;

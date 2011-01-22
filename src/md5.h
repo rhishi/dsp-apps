@@ -75,6 +75,8 @@ extern "C"
 {
 #endif
 
+void md5_process(md5_state_t *pms, const md5_byte_t *data /*[64]*/);
+
 /* Initialize the algorithm. */
 void md5_init(md5_state_t *pms);
 
